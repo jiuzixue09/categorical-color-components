@@ -3,18 +3,23 @@ package com.bigbigwork.vis.color.analyzer;
 import com.alibaba.fastjson.JSONObject;
 import com.bigbigwork.vis.color.util.LAB;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Singleton
 public class API {
 // NOTE: entropy min/max currently hard-wired to XKCD results
     private static final double minE = -4.5;
     private static final double maxE = 0;
 
-    private Entity c3;
-    public API(Entity c3){
-        this.c3 = c3;
+    Entity c3;
+
+    @Inject
+    public API(C3 c3){
+        this.c3 = c3.getEntity();
     }
 
     public Entity getC3() {

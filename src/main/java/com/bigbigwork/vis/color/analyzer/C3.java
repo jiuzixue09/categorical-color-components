@@ -5,17 +5,20 @@ import com.bigbigwork.vis.color.util.LAB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 
+@Singleton
 public class C3 {
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
     public static final String FILE = "data/xkcd/c3_data.json";
 
-    public JSONObject load(){
+    private JSONObject load(){
         try {
             LOG.info("read file {}", FILE);
             var str = Files.readString(Paths.get(FILE));
@@ -27,7 +30,8 @@ public class C3 {
         return null;
     }
 
-    public Entity init(JSONObject json) {
+    public Entity getEntity() {
+        JSONObject json = Objects.requireNonNull(load());
         var colorArr = json.getJSONArray("color");
 
         // parse colors

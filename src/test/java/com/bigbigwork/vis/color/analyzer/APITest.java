@@ -8,9 +8,7 @@ class APITest {
     @Test
     void index(){
         var c3 = new C3();
-        var json = c3.load();
-        var entity = c3.init(json);
-        var api = new API(entity);
+        var api = new API(c3);
         Integer index = api.index("1f77b4");
         System.out.println(index);
 
@@ -19,9 +17,7 @@ class APITest {
     @Test
     void color(){
         var c3 = new C3();
-        var json = c3.load();
-        var entity = c3.init(json);
-        var api = new API(entity);
+        var api = new API(c3);
         JSONObject color = api.color("1f77b4");
         System.out.println(color.getJSONArray("terms"));
 

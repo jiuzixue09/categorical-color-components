@@ -11,6 +11,7 @@ version '0.1.0'
 sourceCompatibility = 11
 
 repositories {
+    maven{ url 'http://maven.aliyun.com/nexus/content/groups/public/'}
     mavenCentral()
     flatDir {
         dirs 'libs'
@@ -24,6 +25,7 @@ dependencies {
     implementation 'com.alibaba:fastjson:1.2.66'
     implementation 'ch.qos.logback:logback-classic:1.1.11'
     implementation 'io.javalin:javalin:3.7.0'
+    implementation 'com.google.inject:guice:4.2.3'
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
     testCompile 'org.junit.jupiter:junit-jupiter:5.6.0'
 }

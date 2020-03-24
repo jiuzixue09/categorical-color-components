@@ -2,38 +2,36 @@ package com.bigbigwork.vis.color.analyzer;
 
 import com.alibaba.fastjson.JSONObject;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+@Singleton
 public class Analyzer {
-    private static final API api;
-    private final NumberFormat percentageFormat;
-    private static Predicate<String> predicate;
+
+    @Inject
+    API api;
+    private NumberFormat percentageFormat;
+    private Predicate<String> predicate;
 
     public Analyzer(){
         percentageFormat = NumberFormat.getPercentInstance();
         percentageFormat.setMinimumFractionDigits(2);
+
+        predicate = this::isBlank;
+        predicate = predicate.and(this::rightLength).and(this::isHex);
     }
 
-    static {
-        var c3 = new C3();
-        var json = c3.load();
-        var entity = c3.init(json);
-        api = new API(entity);
-
-        predicate = Analyzer::isBlank;
-        predicate = predicate.and(Analyzer::rightLength).and(Analyzer::isHex);
-    }
-
-    private static boolean isBlank(String str){
+    private boolean isBlank(String str){
         return Objects.nonNull(str) && !str.isBlank();
     }
-    private static boolean rightLength(String str){
+    private boolean rightLength(String str){
         return str.length() == 6;
     }
-    private static boolean isHex(String str){
+    private boolean isHex(String str){
         return str.matches("#?[a-fA-F0-9]+");
     }
 
