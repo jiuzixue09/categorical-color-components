@@ -3,6 +3,7 @@ package com.bigbigwork.vis.color.analyzer;
 import com.alibaba.fastjson.JSONObject;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -60,7 +61,7 @@ public class Analyzer {
 
         }catch (Exception e){
             rs.put("status", 500);
-            rs.put("message", "wrong name");
+            rs.put("message", Arrays.deepToString(e.getStackTrace()));
         }
         return rs;
 
