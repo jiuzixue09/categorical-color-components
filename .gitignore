@@ -1,0 +1,10 @@
+/target/
+/build/
+/.gradle/
+/gradle/
+/out/
+/logs/
+/bin/
+/.*
+!/.gitignore
+*.iml

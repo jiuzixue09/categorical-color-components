@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'idea'
+}
+
+apply {'java'}
+apply {'idea'}
+group 'com.bigbigwork'
+version '0.1.0'
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    implementation name: 'datalib'
+    implementation name: 'colt'
+    // https://mvnrepository.com/artifact/com.alibaba/fastjson
+    implementation 'com.alibaba:fastjson:1.2.66'
+    implementation 'ch.qos.logback:logback-classic:1.1.11'
+    implementation 'io.javalin:javalin:3.7.0'
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
+    testCompile 'org.junit.jupiter:junit-jupiter:5.6.0'
+}
+
+jar {
+    println System.getProperty("java.home")
+    manifestContentCharset 'utf-8'
+    metadataCharset 'utf-8'
+    from {
+        //添加依懒到打包文件
+        //configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    manifest {
+        attributes 'Main-Class': 'edu.stanford.vis.color.ApplicationC3Analyze'
+    }
+}
