@@ -1,19 +1,23 @@
 package com.bigbigwork.vis.color.train;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.zip.GZIPInputStream;
 
 import com.bigbigwork.vis.color.util.LAB;
 import com.bigbigwork.vis.color.util.Util;
 import edu.stanford.vis.io.format.CSVFormat;
 import edu.stanford.vis.table.DataTable;
+
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 
 public class XKCDResponses {
