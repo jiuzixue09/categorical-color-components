@@ -4,12 +4,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 
 import com.bigbigwork.vis.color.util.LAB;
@@ -38,7 +36,7 @@ public class XKCDResponses {
 	public static final double PTHRESH = 0.05;
 	
 	// Manual rewrite to correct identified misspellings
-	private static final Map<String,String> REWRITE = new HashMap<String,String>();
+	private static final Map<String,String> REWRITE = new HashMap<>();
 	static {
 		REWRITE.put("fuscia", "fuchsia");
 		REWRITE.put("fuschia", "fuchsia");
@@ -79,7 +77,7 @@ public class XKCDResponses {
 		// load data table
 		System.out.print("Reading Data... ");
 		CSVFormat csv = CSVFormat.instance();
-		DataTable dt = null;
+		DataTable dt;
 		try {
 			InputStream is = new GZIPInputStream(Files.newInputStream(Paths.get(FILE)));
 			dt = csv.read(is)[0];
@@ -92,16 +90,16 @@ public class XKCDResponses {
 		dt.addColumn("tnum", int.class); int TNUM = 4;
 		dt.addColumn("cnum", int.class); int CNUM = 5;
 		
-		Map<String,Integer> tidx = new HashMap<String,Integer>();
-		Map<String,Integer> cidx = new HashMap<String,Integer>();
+		Map<String,Integer> tidx = new HashMap<>();
+		Map<String,Integer> cidx = new HashMap<>();
 		int tid = 0, cid = 0;
 		
-		List<String> terms = new ArrayList<String>();
-		List<String> colors = new ArrayList<String>();
+		List<String> terms = new ArrayList<>();
+		List<String> colors = new ArrayList<>();
 		
 		System.out.print("Indexing Data... ");
 		Pattern pat = Pattern.compile("[^a-zA-Z]+");
-		for (int i=0; i<dt.getRowCount(); ++i) {			
+		for (int i = 0; i < dt.getRowCount(); ++i) {
 			// get color chip
 			LAB x = LAB.fromRGBr(dt.getInt(i,0),
 				dt.getInt(i,1), dt.getInt(i,2), SPAN);
@@ -134,41 +132,35 @@ public class XKCDResponses {
 		
 		// build color x term count matrix
 		System.out.println("Tallying Data");
-		Map<Long,Integer> T = new HashMap<Long,Integer>();
-		for (int i=0; i<dt.getRowCount(); ++i) {
+		Map<Long,Integer> T = new HashMap<>();
+		for (int i = 0; i < dt.getRowCount(); ++i) {
 			int c = dt.getInt(i, CNUM), w = dt.getInt(i, TNUM);
 			if (c < 0 || w < 0) continue;
 			long idx = c*W + w;
-			Integer cnt = T.get(idx);
-			T.put(idx, cnt==null ? 1 : cnt+1);
+			T.compute(idx, (k,v) -> null == v ? 1 : v + 1);
 		}
 		
 		// compute column sum of squares
 		long Sc[] = new long[(int)W];
-		for (Map.Entry<Long, Integer> ent : T.entrySet()) {
-			long idx = ent.getKey();
+		T.forEach((idx, k) ->{
 			int w = (int)(idx % W);
-			int k = ent.getValue();
 			Sc[w] += ((long)k)*k;
-		}
-		
+		});
+
 		// sort words by increasing frequency
 		System.out.print("Finding Threshold... ");
 		int threshold = -1;
 		int ss[] = Util.sortindices(Sc);
 		if (threshold < 0) {
-			double norm = 0, max = 0;
-			
-			for (Map.Entry<Long, Integer> ent : T.entrySet()) {
-				max += ent.getValue() * ent.getValue();
-			}
+			double norm = 0;
+			double max = T.values().stream().mapToInt(it -> it * it).sum(); //matrix norm |T|
 			max = Math.sqrt(max);
 			
 			// compute Frobenius norm difference over decreasing values
-			for (int i=0; i<W; ++i) {
+			for (int i = 0; i < W; ++i) {
 				int w = ss[i];
 				double diff = 0, root;
-				for (int c=0; c<C; ++c) {
+				for (int c = 0; c < C; ++c) {
 					Integer count = T.get(c*W+w);
 					if (count != null) diff += count*count;
 				}
@@ -182,10 +174,10 @@ public class XKCDResponses {
 			}
 		}
 		System.out.println(threshold+" ("+(W-threshold)+")");
-		
+
 		// recompute terms
 		System.out.println("Reindexing Terms");
-		List<String> nterms = new ArrayList<String>();
+		List<String> nterms = new ArrayList<>();
 		int[] lut = new int[(int)W];
 		for (int i=0; i<W; ++i) lut[i] = -1;
 		for (int i=ss.length, k=0; --i >= threshold; ++k) {
@@ -195,7 +187,7 @@ public class XKCDResponses {
 		
 		// recompute tallies
 		System.out.println("Recomputing Tally");
-		T = new HashMap<Long,Integer>();
+		T = new HashMap<>();
 		long K = nterms.size();
 		for (int i=0; i<dt.getRowCount(); ++i) {
 			int c = dt.getInt(i, CNUM),
@@ -214,13 +206,7 @@ public class XKCDResponses {
 		System.out.println("Thresholding Data");
 		int mincount = 1;
 		if (mincount > 0) {
-			Iterator<Map.Entry<Long, Integer>> iter = T.entrySet().iterator();
-			while (iter.hasNext()) {
-				Map.Entry<Long, Integer> ent = iter.next();
-				if (ent.getValue() <= mincount) {
-					iter.remove();
-				}
-			}
+			T.entrySet().removeIf(ent -> ent.getValue() <= mincount);
 		}
 		
 		// write data
@@ -241,29 +227,27 @@ public class XKCDResponses {
 		// compute row and column sums
 		int Sw[] = new int[(int)C];
 		int Sc[] = new int[(int)W];
-		for (Map.Entry<Long, Integer> ent : T.entrySet()) {
-			long idx = ent.getKey();
+		T.forEach((idx, k) ->{
 			int c = (int)(idx / W);
 			int w = (int)(idx % W);
-			int k = ent.getValue();
 			Sw[c] += k;
 			Sc[w] += k;
-		}
-		
+		});
+
 		// build term association matrix
 		System.out.print("Computing Term Probabilities... ");
-		double A[] = new double[(int)(W*W)];
-		for (int w=0; w<W; ++w) {
-			for (int v=0; v<W; ++v) {
-				for (int c=0; c<C; ++c) {
-					long cc = c*W;
+		double A[] = new double[(int) (W * W)];
+		for (int w = 0; w < W; ++w) {
+			for (int v = 0; v < W; ++v) {
+				for (int c = 0; c < C; ++c) {
+					long cc = c * W;
 					double a = 0, b = 0;
 					Integer count;
-					if (Sw[c] != 0 && (count = T.get(cc+w)) != null)
-						a = ((double)count) / Sw[c];
-					if (a != 0 && Sc[v] != 0 && (count = T.get(cc+v)) != null)
-						b = ((double)count) / Sc[v];
-				    A[(int)(v*W+w)] += a*b;
+					if (Sw[c] != 0 && (count = T.get(cc + w)) != null)
+						a = ((double) count) / Sw[c];
+					if (a != 0 && Sc[v] != 0 && (count = T.get(cc + v)) != null)
+						b = ((double) count) / Sc[v];
+					A[(int) (v * W + w)] += a * b;
 				}
 			}
 		}
@@ -276,12 +260,12 @@ public class XKCDResponses {
 		// XXX TEMP DEBUG
 		// print top color term associations
 		System.out.println("Top Color Term Associations");
-		for (int w=0; w<W; ++w) {
-			int ww = w*(int)W, idx = -1;
+		for (int w = 0; w < W; ++w) {
+			int ww = w * (int) W, idx = -1;
 			double max = 0;
-			for (int i=0; i<W; ++i) {
-				if (i==w) continue;
-				double val = A[ww+i];
+			for (int i = 0; i < W; ++i) {
+				if (i == w) continue;
+				double val = A[ww + i];
 				if (val > max) {
 					max = val;
 					idx = i;
