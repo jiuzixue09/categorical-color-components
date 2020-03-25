@@ -50,7 +50,7 @@ public class Analyzer {
             var terms = color.getJSONArray("terms").getJSONObject(0);
             var index = terms.getIntValue("index");
 
-            var name = api.getEntity().getTerms().get(index);
+            var name = api.getTable().getTerms().get(index);
             var score = percentageFormat.format(terms.getDouble("score"));
 
             rs.put("name", name);

@@ -15,15 +15,15 @@ public class API {
     private static final double minE = -4.5;
     private static final double maxE = 0;
 
-    Entity entity;
+    Table table;
 
     @Inject
     public API(C3 c3){
-        this.entity = c3.getEntity();
+        this.table = c3.getTable();
     }
 
-    public Entity getEntity() {
-        return entity;
+    public Table getTable() {
+        return table;
     }
 
     private LAB toLab(String hexStr){
@@ -41,7 +41,7 @@ public class API {
         var b = 5 * Math.round(x.b / 5);
 
         String str = String.format("%s,%s,%s", L,a,b);
-        return entity.getIndex(str);
+        return table.getIndex(str);
     }
 
     public JSONObject color(String x) {
@@ -63,8 +63,8 @@ public class API {
     public double entropy(int c) {
         var H = 0.0;
         var p = 0.0;
-        for (var w = 0; w < entity.getW(); ++w) {
-            p = 1.0 * (entity.getT()[c * entity.getW() + w]) / entity.getCcount()[c];
+        for (var w = 0; w < table.getW(); ++w) {
+            p = 1.0 * (table.getT()[c * table.getW() + w]) / table.getCcount()[c];
             if (p > 0) H += p * Math.log(p) / Math.log(2);
         }
         return H;
@@ -72,13 +72,13 @@ public class API {
 
 
     public List<JSONObject> relatedTerms(int c, int limit, int minCount) {
-        var cc = c* entity.getW();
+        var cc = c* table.getW();
         var list = new ArrayList<JSONObject>();
         var sum = 0;
         var s = 0;
-        var cnt = entity.getW();
+        var cnt = table.getW();
         for (var w = 0; w < cnt; ++w) {
-            if ((s = entity.getT()[cc+w]) > 0) {
+            if ((s = table.getT()[cc+w]) > 0) {
                 var j = new JSONObject();
                 j.put("index",w);
                 j.put("score", s);
@@ -87,7 +87,7 @@ public class API {
             }
         }
         if (minCount > 0) {
-            list = (ArrayList<JSONObject>) list.stream().filter(it -> entity.getTcount()[it.getIntValue("index")] > minCount).collect(Collectors.toList());
+            list = (ArrayList<JSONObject>) list.stream().filter(it -> table.getTcount()[it.getIntValue("index")] > minCount).collect(Collectors.toList());
         }
 
         list.sort((o1, o2) -> o2.getIntValue("score") - o1.getIntValue("score"));

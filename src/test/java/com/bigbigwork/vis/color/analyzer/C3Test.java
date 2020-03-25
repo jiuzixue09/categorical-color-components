@@ -7,7 +7,7 @@ class C3Test {
     @Test
     void init(){
         var c3 = new C3();
-        c3.getEntity();
+        c3.getTable();
     }
 
 }

@@ -30,7 +30,7 @@ public class C3 {
         return null;
     }
 
-    public Entity getEntity() {
+    public Table getTable() {
         JSONObject json = Objects.requireNonNull(load());
         var colorArr = json.getJSONArray("color");
 
@@ -69,10 +69,10 @@ public class C3 {
         // parse word association matrix
         var A = json.getJSONArray("A");
 
-        Entity entity = new Entity();
-        entity.setA(A).setC(C).setW(W).setT(T).setCcount(ccount).setTcount(tcount).setColor(color).setTerms(terms);
+        Table table = new Table();
+        table.setA(A).setC(C).setW(W).setT(T).setCcount(ccount).setTcount(tcount).setColor(color).setTerms(terms);
 
-      return entity;
+      return table;
     }
 
 

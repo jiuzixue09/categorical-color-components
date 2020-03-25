@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Entity {
+public class Table {
 
     private int C;
     private int W;
@@ -25,7 +25,7 @@ public class Entity {
         return C;
     }
 
-    public Entity setC(int c) {
+    public Table setC(int c) {
         C = c;
         return this;
     }
@@ -34,7 +34,7 @@ public class Entity {
         return W;
     }
 
-    public Entity setW(int w) {
+    public Table setW(int w) {
         W = w;
         return this;
     }
@@ -43,7 +43,7 @@ public class Entity {
         return T;
     }
 
-    public Entity setT(int[] t) {
+    public Table setT(int[] t) {
         T = t;
         return this;
     }
@@ -62,7 +62,7 @@ public class Entity {
      * @param a
      * @return
      */
-    public Entity setA(JSONArray a) {
+    public Table setA(JSONArray a) {
         A = a;
         return this;
     }
@@ -71,7 +71,7 @@ public class Entity {
         return ccount;
     }
 
-    public Entity setCcount(int[] ccount) {
+    public Table setCcount(int[] ccount) {
         this.ccount = ccount;
         return this;
     }
@@ -80,7 +80,7 @@ public class Entity {
         return tcount;
     }
 
-    public Entity setTcount(int[] tcount) {
+    public Table setTcount(int[] tcount) {
         this.tcount = tcount;
         return this;
     }
@@ -89,7 +89,7 @@ public class Entity {
         return terms;
     }
 
-    public Entity setTerms(JSONArray terms) {
+    public Table setTerms(JSONArray terms) {
         this.terms = terms;
         return this;
     }
@@ -98,7 +98,7 @@ public class Entity {
         return color;
     }
 
-    public Entity setColor(LAB[] color) {
+    public Table setColor(LAB[] color) {
         this.color = color;
         build();
         return this;
