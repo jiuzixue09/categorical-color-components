@@ -15,15 +15,15 @@ public class API {
     private static final double minE = -4.5;
     private static final double maxE = 0;
 
-    Entity c3;
+    Entity entity;
 
     @Inject
     public API(C3 c3){
-        this.c3 = c3.getEntity();
+        this.entity = c3.getEntity();
     }
 
-    public Entity getC3() {
-        return c3;
+    public Entity getEntity() {
+        return entity;
     }
 
     private LAB toLab(String hexStr){
@@ -41,7 +41,7 @@ public class API {
         var b = 5 * Math.round(x.b / 5);
 
         String str = String.format("%s,%s,%s", L,a,b);
-        return c3.getIndex(str);
+        return entity.getIndex(str);
     }
 
     public JSONObject color(String x) {
@@ -63,8 +63,8 @@ public class API {
     public double entropy(int c) {
         var H = 0.0;
         var p = 0.0;
-        for (var w = 0; w < c3.getW(); ++w) {
-            p = 1.0 * (c3.getT()[c * c3.getW() + w]) / c3.getCcount()[c];
+        for (var w = 0; w < entity.getW(); ++w) {
+            p = 1.0 * (entity.getT()[c * entity.getW() + w]) / entity.getCcount()[c];
             if (p > 0) H += p * Math.log(p) / Math.log(2);
         }
         return H;
@@ -72,13 +72,13 @@ public class API {
 
 
     public List<JSONObject> relatedTerms(int c, int limit, int minCount) {
-        var cc = c* c3.getW();
+        var cc = c* entity.getW();
         var list = new ArrayList<JSONObject>();
         var sum = 0;
         var s = 0;
-        var cnt = c3.getW();
+        var cnt = entity.getW();
         for (var w = 0; w < cnt; ++w) {
-            if ((s = c3.getT()[cc+w]) > 0) {
+            if ((s = entity.getT()[cc+w]) > 0) {
                 var j = new JSONObject();
                 j.put("index",w);
                 j.put("score", s);
@@ -87,7 +87,7 @@ public class API {
             }
         }
         if (minCount > 0) {
-            list = (ArrayList<JSONObject>) list.stream().filter(it -> c3.getTcount()[it.getIntValue("index")] > minCount).collect(Collectors.toList());
+            list = (ArrayList<JSONObject>) list.stream().filter(it -> entity.getTcount()[it.getIntValue("index")] > minCount).collect(Collectors.toList());
         }
 
         list.sort((o1, o2) -> o2.getIntValue("score") - o1.getIntValue("score"));
